@@ -509,7 +509,6 @@ class FittsTestUI extends UIClass {
 
                 // a bit more left to do...
                 // === YOUR CODE HERE ===
-
                 this.theTarget.visible = false;
                 this.redraw();
 
@@ -519,12 +518,7 @@ class FittsTestUI extends UIClass {
                 // === YOUR CODE HERE ===
                 console.log("begin trial")
                 this.newTrial();
-                // this.theBackground.msg1 = "Trial #" + this.trialCount + " of " + this.MAX_TRIALS;
-                // this.theBackground.msg2 = ""; 
-                // this.theBackground.msg3 = "";
-                // this.theReticle.visible = true;
-                // this.theTarget.visible = false;
-                // this.redraw();
+ 
         
             break;
             case 'in_trial':
@@ -573,12 +567,13 @@ class FittsTestUI extends UIClass {
             this.configure('ended');
         } else { // otherwise we have a normal trial...
             // make new random locations for reticle and target 
-            // const {retX:retX, retY:retY, targX:targX, targY:targY, targD:targDiam} = 
-            //     pickLocationsAndSize(this.canvas.width,this.canvas.height);
+            const {retX:retX, retY:retY, targX:targX, targY:targY, targD:targDiam} = 
+                pickLocationsAndSize(this.canvas.width,this.canvas.height);
             // === YOUR CODE HERE ===
             // remove old objects, create new objects and new locations 
-            this.childObjects = [];
-            this.buildUIObjects();
+            this._theTarget.newGeom(targX, targY, targDiam);
+            this._theReticle.centerX = retX; 
+            this._theReticle.centerY = retY;
             this.theBackground.msg1 = "Trial #" + this.trialCount + " of " + this.MAX_TRIALS;
             this.theBackground.msg2 = ""; 
             this.theBackground.msg3 = "";
@@ -674,6 +669,8 @@ class Target extends ScreenObject{
         // === YOUR CODE HERE ===
         if (!(typeof newDiam == 'undefined')) {
             this._w = this._h = newDiam; 
+            this._x = newCentX; 
+            this._y = newCentY;
         }
         
         this.declareDamaged();
@@ -705,6 +702,9 @@ class Target extends ScreenObject{
             ctx.arc(this._x, this._y, this.radius,0, Math.PI * 2); //draws a circle 
             ctx.fillStyle = this.color;
             ctx.fill();
+            ctx.strokeStyle = 'black';      // Outline color for the outer circle
+            ctx.lineWidth = 1;             // Line width for the outer circle
+            ctx.stroke(); 
         }
         
     }
@@ -740,6 +740,7 @@ class Target extends ScreenObject{
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.recordTrialEnd(ptX, ptY, this.diam)
                 this._parentUI.configure('begin_trial');
+                return true;
                 
             }
         }
@@ -864,7 +865,8 @@ class Reticle extends Target {
         if (this._parentUI.currentState == 'begin_trial' ) {
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.startTrial(ptX, ptY);
-                this._parentUI.configure('in_trial')
+                this._parentUI.configure('in_trial'); 
+                return true;
             }
             console.log(ptX, ptY);
 
