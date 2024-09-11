@@ -536,8 +536,6 @@ var FittsTestUI = /** @class */ (function (_super) {
             this._theTarget.newGeom(targX, targY, targDiam);
             this._theReticle.centerX = retX;
             this._theReticle.centerY = retY;
-            // this.childObjects = [];
-            // this.buildUIObjects();
             this.theBackground.msg1 = "Trial #" + this.trialCount + " of " + this.MAX_TRIALS;
             this.theBackground.msg2 = "";
             this.theBackground.msg3 = "";
