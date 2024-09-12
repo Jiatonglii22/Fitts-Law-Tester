@@ -743,6 +743,7 @@ class Target extends ScreenObject{
                 return true;
                 
             }
+            return false;
         }
         
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
@@ -791,7 +792,7 @@ class Reticle extends Target {
     // circle that indicates the active clickable region of the object.
     override draw(ctx : CanvasRenderingContext2D) : void {
         
-        // === YOUR CODE HERE === complete
+        // === YOUR CODE HERE === 
 
         if (this.visible) {           
             //draw outer circle 
@@ -817,7 +818,7 @@ class Reticle extends Target {
 
             // Draw crossed lines inside the inner circle
             ctx.beginPath();               // Start a new path for the lines
-            ctx.strokeStyle = 'black';       // Line color
+            ctx.strokeStyle = 'black';     // Line color
             ctx.lineWidth = 1;             // Line width
 
             // Vertical line
@@ -844,10 +845,10 @@ class Reticle extends Target {
         if (ptX >= this._x - Reticle.RETICLE_INNER_DIAM/2 
             && ptX <= this._x + Reticle.RETICLE_INNER_DIAM/2
             && ptY >= this._y - Reticle.RETICLE_INNER_DIAM/2
-            && ptY <= this._y + Reticle.RETICLE_INNER_DIAM/2) 
+            && ptY <= this._y + Reticle.RETICLE_INNER_DIAM/2) {
             //within inner circle
             return true;
-        
+            }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
         return false;
         // === END OF CODE TO BE REMOVED ===
@@ -954,8 +955,8 @@ class BackgroundDisplay extends ScreenObject{
         // === YOUR CODE HERE ===
         if (this._parentUI.currentState == 'start') {
             if (ptX >= this._x && ptX <= this._w && ptY >= this._y && ptY <= this._h) {
-                console.log("clicked anywhere");
                 this._parentUI.configure('begin_trial');
+                return true;
             }
         }
         
