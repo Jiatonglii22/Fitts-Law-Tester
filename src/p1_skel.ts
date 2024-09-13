@@ -509,6 +509,8 @@ class FittsTestUI extends UIClass {
 
                 // a bit more left to do...
                 // === YOUR CODE HERE ===
+
+                //Only show background, set Reticle and Target visibility to false
                 this.theTarget.visible = false;
                 this.redraw();
 
@@ -516,18 +518,18 @@ class FittsTestUI extends UIClass {
             case 'begin_trial':
                 
                 // === YOUR CODE HERE ===
-                console.log("begin trial")
+                //initiates a new trial 
                 this.newTrial();
  
-        
             break;
             case 'in_trial':
                 
                 // === YOUR CODE HERE ===
+                //changes conditions for 'in_trial'
                 this.theBackground.msg1 = "";
                 this.theBackground.msg2 = ""; 
                 this.theBackground.msg3 = "";
-                this.theTarget.visible = true; 
+                this.theTarget.visible = true;
                 this.theReticle.visible = false;
                 this.redraw();
         
@@ -535,6 +537,7 @@ class FittsTestUI extends UIClass {
             case 'ended':
 
                 // === YOUR CODE HERE ===
+                //changes conditions for 'ended'
                 this.theBackground.msg1 = "Done! Refresh the page to start again.";
                 this.theBackground.msg2 = ""; 
                 this.theBackground.msg3 = "";
@@ -570,7 +573,7 @@ class FittsTestUI extends UIClass {
             const {retX:retX, retY:retY, targX:targX, targY:targY, targD:targDiam} = 
                 pickLocationsAndSize(this.canvas.width,this.canvas.height);
             // === YOUR CODE HERE ===
-            // remove old objects, create new objects and new locations 
+            // changes location for shapes and draw at new locations 
             this._theTarget.newGeom(targX, targY, targDiam);
             this._theReticle.centerX = retX; 
             this._theReticle.centerY = retY;
@@ -667,6 +670,7 @@ class Target extends ScreenObject{
     newGeom(newCentX : number, newCentY : number, newDiam? : number) {
         
         // === YOUR CODE HERE ===
+        // if diameter is provided, change the size of the shape
         if (!(typeof newDiam == 'undefined')) {
             this._w = this._h = newDiam; 
             this._x = newCentX; 
@@ -696,7 +700,7 @@ class Target extends ScreenObject{
     override draw(ctx : CanvasRenderingContext2D) : void {
         
         // === YOUR CODE HERE ===
-        if (this.visible) {
+        if (!this.visible) return;
             //draw circle
             ctx.beginPath(); 
             ctx.arc(this._x, this._y, this.radius,0, Math.PI * 2); //draws a circle 
@@ -705,7 +709,6 @@ class Target extends ScreenObject{
             ctx.strokeStyle = 'black';      // Outline color for the outer circle
             ctx.lineWidth = 1;             // Line width for the outer circle
             ctx.stroke(); 
-        }
         
     }
 
@@ -719,6 +722,7 @@ class Target extends ScreenObject{
             ptX <= this._x + this.radius && 
             ptY >= this._y - this.radius && 
             ptY <= this._y + this.radius) {
+                //if clicked within boundaries of circle 
                 return true;
             }
         
@@ -735,10 +739,11 @@ class Target extends ScreenObject{
     override handleClickAt(ptX : number, ptY : number) : boolean {
         
         // === YOUR CODE HERE ===
-
+        //only register click if in the right state
         if (this._parentUI.currentState == 'in_trial') {
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.recordTrialEnd(ptX, ptY, this.diam)
+                //if picked in the boundaries, change configuration
                 this._parentUI.configure('begin_trial');
                 return true;
                 
@@ -793,44 +798,42 @@ class Reticle extends Target {
     override draw(ctx : CanvasRenderingContext2D) : void {
         
         // === YOUR CODE HERE === 
-
-        if (this.visible) {           
+        if (!this.visible) return;        
             //draw outer circle 
-            let outerRadius : number = Reticle.RETICLE_DIAM/2;
-            let innerRadius : number = Reticle.RETICLE_INNER_DIAM/2;
+        let outerRadius : number = Reticle.RETICLE_DIAM/2;
+        let innerRadius : number = Reticle.RETICLE_INNER_DIAM/2;
 
-            ctx.beginPath();               // Start a new path
-            ctx.arc(this._x, this._y, outerRadius, 0, Math.PI * 2); // Draw the outer circle
-            ctx.fillStyle = this.color; 
-            ctx.fill();
-            ctx.strokeStyle = 'black';      // Outline color for the outer circle
-            ctx.lineWidth = 1;             // Line width for the outer circle
-            ctx.stroke(); 
+        ctx.beginPath();               // Start a new path
+        ctx.arc(this._x, this._y, outerRadius, 0, Math.PI * 2); // Draw the outer circle
+        ctx.fillStyle = this.color; 
+        ctx.fill();
+        ctx.strokeStyle = 'black';      // Outline color for the outer circle
+        ctx.lineWidth = 1;             // Line width for the outer circle
+        ctx.stroke(); 
 
-            //draw inner circle 
-            ctx.beginPath();               // Start a new path
-            ctx.arc(this._x, this._y, innerRadius, 0, Math.PI * 2); // Draw the outer circle
-            ctx.fillStyle = this.color; 
-            ctx.fill();
-            ctx.strokeStyle = 'black';      // Outline color for the outer circle
-            ctx.lineWidth = 1;             // Line width for the outer circle
-            ctx.stroke(); 
+        //draw inner circle 
+        ctx.beginPath();               // Start a new path
+        ctx.arc(this._x, this._y, innerRadius, 0, Math.PI * 2); // Draw the outer circle
+        ctx.fillStyle = this.color; 
+        ctx.fill();
+        ctx.strokeStyle = 'black';      // Outline color for the outer circle
+        ctx.lineWidth = 1;             // Line width for the outer circle
+        ctx.stroke(); 
 
-            // Draw crossed lines inside the inner circle
-            ctx.beginPath();               // Start a new path for the lines
-            ctx.strokeStyle = 'black';     // Line color
-            ctx.lineWidth = 1;             // Line width
+        // Draw crossed lines inside the inner circle
+        ctx.beginPath();               // Start a new path for the lines
+        ctx.strokeStyle = 'black';     // Line color
+        ctx.lineWidth = 1;             // Line width
 
-            // Vertical line
-            ctx.moveTo(this._x, this._y - outerRadius); // Start at the top of the inner circle
-            ctx.lineTo(this._x, this._y + outerRadius); // End at the bottom of the inner circle
+        // Vertical line
+        ctx.moveTo(this._x, this._y - outerRadius); // Start at the top of the inner circle
+        ctx.lineTo(this._x, this._y + outerRadius); // End at the bottom of the inner circle
 
-            // Horizontal line
-            ctx.moveTo(this._x - outerRadius, this._y); // Start at the left of the inner circle
-            ctx.lineTo(this._x + outerRadius, this._y); // End at the right of the inner circle
+        // Horizontal line
+        ctx.moveTo(this._x - outerRadius, this._y); // Start at the left of the inner circle
+        ctx.lineTo(this._x + outerRadius, this._y); // End at the right of the inner circle
 
-            ctx.stroke();   
-        }
+        ctx.stroke();   
 
 
     }
@@ -841,12 +844,11 @@ class Reticle extends Target {
     override pickedBy(ptX : number, ptY : number) : boolean {
         
         // === YOUR CODE HERE ===
-
         if (ptX >= this._x - Reticle.RETICLE_INNER_DIAM/2 
             && ptX <= this._x + Reticle.RETICLE_INNER_DIAM/2
             && ptY >= this._y - Reticle.RETICLE_INNER_DIAM/2
             && ptY <= this._y + Reticle.RETICLE_INNER_DIAM/2) {
-            //within inner circle
+            //if point is clicked within the inner circle
             return true;
             }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
@@ -862,10 +864,11 @@ class Reticle extends Target {
     override handleClickAt(ptX : number, ptY : number) : boolean {
         
         // === YOUR CODE HERE ===
-
+        //only register click if in the right state 
         if (this._parentUI.currentState == 'begin_trial' ) {
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.startTrial(ptX, ptY);
+                //change configuration to next state
                 this._parentUI.configure('in_trial'); 
                 return true;
             }
@@ -936,7 +939,7 @@ class BackgroundDisplay extends ScreenObject{
         let ypos : number = 20 + fontHeight;
         let xpos : number = 10;
 
-        // === YOUR CODE HERE === completed
+        // === YOUR CODE HERE === 
         //drawing the text on screen 
         const lines = [this._msg1, this._msg2, this._msg3];
         const lineHeight = 50;
@@ -953,8 +956,10 @@ class BackgroundDisplay extends ScreenObject{
     override handleClickAt(ptX : number, ptY : number) : boolean {
         
         // === YOUR CODE HERE ===
+        //check the state is at the 'start'
         if (this._parentUI.currentState == 'start') {
             if (ptX >= this._x && ptX <= this._w && ptY >= this._y && ptY <= this._h) {
+                //picked anywhere on the screen, change the state to the next one
                 this._parentUI.configure('begin_trial');
                 return true;
             }

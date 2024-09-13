@@ -486,16 +486,18 @@ var FittsTestUI = /** @class */ (function (_super) {
                 this.theReticle.visible = false;
                 // a bit more left to do...
                 // === YOUR CODE HERE ===
+                //Only show background, set Reticle and Target visibility to false
                 this.theTarget.visible = false;
                 this.redraw();
                 break;
             case 'begin_trial':
                 // === YOUR CODE HERE ===
-                console.log("begin trial");
+                //initiates a new trial 
                 this.newTrial();
                 break;
             case 'in_trial':
                 // === YOUR CODE HERE ===
+                //changes conditions for 'in_trial'
                 this.theBackground.msg1 = "";
                 this.theBackground.msg2 = "";
                 this.theBackground.msg3 = "";
@@ -505,6 +507,7 @@ var FittsTestUI = /** @class */ (function (_super) {
                 break;
             case 'ended':
                 // === YOUR CODE HERE ===
+                //changes conditions for 'ended'
                 this.theBackground.msg1 = "Done! Refresh the page to start again.";
                 this.theBackground.msg2 = "";
                 this.theBackground.msg3 = "";
@@ -532,7 +535,7 @@ var FittsTestUI = /** @class */ (function (_super) {
             // make new random locations for reticle and target 
             var _a = pickLocationsAndSize(this.canvas.width, this.canvas.height), retX = _a.retX, retY = _a.retY, targX = _a.targX, targY = _a.targY, targDiam = _a.targD;
             // === YOUR CODE HERE ===
-            // remove old objects, create new objects and new locations 
+            // changes location for shapes and draw at new locations 
             this._theTarget.newGeom(targX, targY, targDiam);
             this._theReticle.centerX = retX;
             this._theReticle.centerY = retY;
@@ -627,6 +630,7 @@ var Target = /** @class */ (function (_super) {
     // If the diameter is supplied, both the width and height are set to that value.
     Target.prototype.newGeom = function (newCentX, newCentY, newDiam) {
         // === YOUR CODE HERE ===
+        // if diameter is provided, change the size of the shape
         if (!(typeof newDiam == 'undefined')) {
             this._w = this._h = newDiam;
             this._x = newCentX;
@@ -643,16 +647,16 @@ var Target = /** @class */ (function (_super) {
     // Draw the object as a filled and outlined circle
     Target.prototype.draw = function (ctx) {
         // === YOUR CODE HERE ===
-        if (this.visible) {
-            //draw circle
-            ctx.beginPath();
-            ctx.arc(this._x, this._y, this.radius, 0, Math.PI * 2); //draws a circle 
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.strokeStyle = 'black'; // Outline color for the outer circle
-            ctx.lineWidth = 1; // Line width for the outer circle
-            ctx.stroke();
-        }
+        if (!this.visible)
+            return;
+        //draw circle
+        ctx.beginPath();
+        ctx.arc(this._x, this._y, this.radius, 0, Math.PI * 2); //draws a circle 
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = 'black'; // Outline color for the outer circle
+        ctx.lineWidth = 1; // Line width for the outer circle
+        ctx.stroke();
     };
     // . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . 
     // Pick function.  We only pick within our circle, not the entire bounding box
@@ -662,6 +666,7 @@ var Target = /** @class */ (function (_super) {
             ptX <= this._x + this.radius &&
             ptY >= this._y - this.radius &&
             ptY <= this._y + this.radius) {
+            //if clicked within boundaries of circle 
             return true;
         }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
@@ -674,12 +679,15 @@ var Target = /** @class */ (function (_super) {
     // and starting a new one.
     Target.prototype.handleClickAt = function (ptX, ptY) {
         // === YOUR CODE HERE ===
+        //only register click if in the right state
         if (this._parentUI.currentState == 'in_trial') {
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.recordTrialEnd(ptX, ptY, this.diam);
+                //if picked in the boundaries, change configuration
                 this._parentUI.configure('begin_trial');
                 return true;
             }
+            return false;
         }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
         return false;
@@ -714,38 +722,38 @@ var Reticle = /** @class */ (function (_super) {
     // Draw the reticle.  This includes cross hair lines and an inner "aiming"
     // circle that indicates the active clickable region of the object.
     Reticle.prototype.draw = function (ctx) {
-        // === YOUR CODE HERE === complete
-        if (this.visible) {
-            //draw outer circle 
-            var outerRadius = Reticle.RETICLE_DIAM / 2;
-            var innerRadius = Reticle.RETICLE_INNER_DIAM / 2;
-            ctx.beginPath(); // Start a new path
-            ctx.arc(this._x, this._y, outerRadius, 0, Math.PI * 2); // Draw the outer circle
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.strokeStyle = 'black'; // Outline color for the outer circle
-            ctx.lineWidth = 1; // Line width for the outer circle
-            ctx.stroke();
-            //draw inner circle 
-            ctx.beginPath(); // Start a new path
-            ctx.arc(this._x, this._y, innerRadius, 0, Math.PI * 2); // Draw the outer circle
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.strokeStyle = 'black'; // Outline color for the outer circle
-            ctx.lineWidth = 1; // Line width for the outer circle
-            ctx.stroke();
-            // Draw crossed lines inside the inner circle
-            ctx.beginPath(); // Start a new path for the lines
-            ctx.strokeStyle = 'black'; // Line color
-            ctx.lineWidth = 1; // Line width
-            // Vertical line
-            ctx.moveTo(this._x, this._y - outerRadius); // Start at the top of the inner circle
-            ctx.lineTo(this._x, this._y + outerRadius); // End at the bottom of the inner circle
-            // Horizontal line
-            ctx.moveTo(this._x - outerRadius, this._y); // Start at the left of the inner circle
-            ctx.lineTo(this._x + outerRadius, this._y); // End at the right of the inner circle
-            ctx.stroke();
-        }
+        // === YOUR CODE HERE === 
+        if (!this.visible)
+            return;
+        //draw outer circle 
+        var outerRadius = Reticle.RETICLE_DIAM / 2;
+        var innerRadius = Reticle.RETICLE_INNER_DIAM / 2;
+        ctx.beginPath(); // Start a new path
+        ctx.arc(this._x, this._y, outerRadius, 0, Math.PI * 2); // Draw the outer circle
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = 'black'; // Outline color for the outer circle
+        ctx.lineWidth = 1; // Line width for the outer circle
+        ctx.stroke();
+        //draw inner circle 
+        ctx.beginPath(); // Start a new path
+        ctx.arc(this._x, this._y, innerRadius, 0, Math.PI * 2); // Draw the outer circle
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = 'black'; // Outline color for the outer circle
+        ctx.lineWidth = 1; // Line width for the outer circle
+        ctx.stroke();
+        // Draw crossed lines inside the inner circle
+        ctx.beginPath(); // Start a new path for the lines
+        ctx.strokeStyle = 'black'; // Line color
+        ctx.lineWidth = 1; // Line width
+        // Vertical line
+        ctx.moveTo(this._x, this._y - outerRadius); // Start at the top of the inner circle
+        ctx.lineTo(this._x, this._y + outerRadius); // End at the bottom of the inner circle
+        // Horizontal line
+        ctx.moveTo(this._x - outerRadius, this._y); // Start at the left of the inner circle
+        ctx.lineTo(this._x + outerRadius, this._y); // End at the right of the inner circle
+        ctx.stroke();
     };
     // . . . . . . . . . . . .  . . . . . . . . . . . . . . . . . . . . . . 
     // Picking function. We are only picked within our small center region.
@@ -754,9 +762,10 @@ var Reticle = /** @class */ (function (_super) {
         if (ptX >= this._x - Reticle.RETICLE_INNER_DIAM / 2
             && ptX <= this._x + Reticle.RETICLE_INNER_DIAM / 2
             && ptY >= this._y - Reticle.RETICLE_INNER_DIAM / 2
-            && ptY <= this._y + Reticle.RETICLE_INNER_DIAM / 2)
-            //within inner circle
+            && ptY <= this._y + Reticle.RETICLE_INNER_DIAM / 2) {
+            //if point is clicked within the inner circle
             return true;
+        }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
         return false;
         // === END OF CODE TO BE REMOVED ===
@@ -767,9 +776,11 @@ var Reticle = /** @class */ (function (_super) {
     // by starting the trial timer and moving to the 'in_trial' state.
     Reticle.prototype.handleClickAt = function (ptX, ptY) {
         // === YOUR CODE HERE ===
+        //only register click if in the right state 
         if (this._parentUI.currentState == 'begin_trial') {
             if (this.pickedBy(ptX, ptY)) {
                 this._parentUI.startTrial(ptX, ptY);
+                //change configuration to next state
                 this._parentUI.configure('in_trial');
                 return true;
             }
@@ -844,7 +855,7 @@ var BackgroundDisplay = /** @class */ (function (_super) {
         // Track line positions
         var ypos = 20 + fontHeight;
         var xpos = 10;
-        // === YOUR CODE HERE === completed
+        // === YOUR CODE HERE === 
         //drawing the text on screen 
         var lines = [this._msg1, this._msg2, this._msg3];
         var lineHeight = 50;
@@ -858,10 +869,12 @@ var BackgroundDisplay = /** @class */ (function (_super) {
     // in which case we respond to this input by starting a new trial
     BackgroundDisplay.prototype.handleClickAt = function (ptX, ptY) {
         // === YOUR CODE HERE ===
+        //check the state is at the 'start'
         if (this._parentUI.currentState == 'start') {
             if (ptX >= this._x && ptX <= this._w && ptY >= this._y && ptY <= this._h) {
-                console.log("clicked anywhere");
+                //picked anywhere on the screen, change the state to the next one
                 this._parentUI.configure('begin_trial');
+                return true;
             }
         }
         // === REMOVE THE FOLLOWING CODE (which is here so the skeleton code compiles) ===
